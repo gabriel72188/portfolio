@@ -1,0 +1,53 @@
+---
+import { getLangFromUrl, useTranslations, getLocalePath } from '../i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section id="inicio" class="hero">
+  <div class="hgrid"></div>
+  <div class="hvig"></div>
+  <div class="w hc">
+    <div class="heyebrow r">
+      <span class="hdot"></span>
+      <span class="hetxt">{t.hero.tag}</span>
+    </div>
+    <h1 class="htitle r d1">GABRIEL</h1>
+    <span class="hsub r d2">{t.hero.sub}</span>
+    <div class="hrow">
+      <p class="hdesc r d3">{t.hero.desc}</p>
+      <div class="hbtns r d4">
+        <a href={`${getLocalePath(lang)}#proyectos`} class="btn bP">{t.hero.cta}</a>
+        <a href={`${getLocalePath(lang)}#contacto`} class="btn bG">{t.hero.cta2}</a>
+      </div>
+    </div>
+    <div class="hscroll r" style="transition-delay:.5s">
+      <div class="stk"></div>
+      <span class="slbl">scroll</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; }
+  .hgrid { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(242,240,235,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(242,240,235,.025) 1px, transparent 1px); background-size: 64px 64px; }
+  .hvig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, var(--black) 100%); }
+  .hc { position: relative; z-index: 1; padding-top: calc(var(--nav) + 60px); padding-bottom: 80px; }
+  .heyebrow { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+  .hdot { width: 7px; height: 7px; border-radius: 50%; background: var(--white); animation: bl 2.5s ease-in-out infinite; }
+  @keyframes bl { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+  .hetxt { font-size: .8rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--g5); }
+  .htitle { font-family: var(--D); font-size: clamp(5.5rem, 14vw, 13rem); line-height: .9; letter-spacing: .02em; color: var(--white); }
+  .hsub { font-family: var(--D); font-size: clamp(2.2rem, 5.5vw, 5rem); line-height: 1; letter-spacing: .04em; color: var(--g4); display: block; margin-bottom: 0; }
+  .hrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-top: 48px; flex-wrap: wrap; }
+  .hdesc { max-width: 400px; font-size: 1rem; line-height: 1.75; color: var(--g5); font-weight: 400; }
+  .hbtns { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hscroll { display: flex; align-items: center; gap: 12px; margin-top: 72px; }
+  .stk { width: 36px; height: 1px; background: var(--g3); overflow: hidden; position: relative; }
+  .stk::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--white); animation: rn 2.2s ease-in-out infinite; }
+  @keyframes rn { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+  .slbl { font-size: .72rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--g4); }
+  @media (max-width: 640px) {
+    .hrow { flex-direction: column; align-items: flex-start; }
+  }
+</style>
