@@ -2,24 +2,28 @@
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+const formUrl = import.meta.env.PUBLIC_FORMSPREE_URL;
 ---
 
 <section id="contacto" class="sec">
   <div class="w">
     <p class="slabel r">{t.contact.label}</p>
     <div class="cgrid">
-
       <div class="ctxt r d1">
         <h2 class="stitle">{t.contact.title}</h2>
         <p class="cdesc">{t.contact.desc}</p>
         <div class="cmeta">
           <div class="mrow">
             <span class="mk">Email</span>
-            <a href="mailto:gabriel@example.com" class="mv">gabriel@example.com</a>
+            <a href="mailto:gabrielmq1205@gmail.com" class="mv">gabrielmq1205@gmail.com</a>
+          </div>
+          <div class="mrow">
+            <span class="mk">{t.contact.phone}</span>
+            <a href="tel:+34622266371" class="mv">+34 622266371</a>
           </div>
           <div class="mrow">
             <span class="mk">{t.contact.loc}</span>
-            <span class="mv">Andalucia, Espana</span>
+            <span class="mv">Andalucía, España</span>
           </div>
           <div class="mrow">
             <span class="mk">{t.contact.avail}</span>
@@ -33,17 +37,20 @@ const t = useTranslations(lang);
 
       <div class="r d2">
         <form id="cf" novalidate>
+          <!-- Honeypot anti-spam de Formspree -->
+          <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+          
           <div class="fg">
             <label class="fl" for="fn">{t.contact.name}</label>
-            <input type="text" id="fn" class="fi" placeholder={t.contact.phName} required />
+            <input type="text" id="fn" name="name" class="fi" placeholder={t.contact.phName} required />
           </div>
           <div class="fg">
             <label class="fl" for="fe">Email</label>
-            <input type="email" id="fe" class="fi" placeholder={t.contact.phEmail} required />
+            <input type="email" id="fe" name="email" class="fi" placeholder={t.contact.phEmail} required />
           </div>
           <div class="fg">
             <label class="fl" for="fm">{t.contact.message}</label>
-            <textarea id="fm" class="fi" rows="5" placeholder={t.contact.phMsg} required></textarea>
+            <textarea id="fm" name="message" class="fi" rows="5" placeholder={t.contact.phMsg} required></textarea>
           </div>
           <div class="ffoot">
             <span class="fmsg" id="fms" aria-live="polite"></span>
@@ -55,7 +62,6 @@ const t = useTranslations(lang);
           </div>
         </form>
       </div>
-
     </div>
   </div>
 </section>
@@ -82,6 +88,7 @@ const t = useTranslations(lang);
   .ffoot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
   .fmsg { font-size: .75rem; font-weight: 500; color: var(--g4); flex: 1; }
   .fmsg.ok { color: var(--g6); }
+  .fmsg.err { color: #c44; }
   .sbtn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 30px; font-size: .8125rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; background: var(--white); color: var(--black); border: 1px solid transparent; border-radius: 1px; transition: background .2s, transform .18s; }
   .sbtn:hover { background: var(--g6); transform: translateY(-2px); }
   .sbtn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
@@ -91,26 +98,61 @@ const t = useTranslations(lang);
   @media (max-width: 960px) { .cgrid { grid-template-columns: 1fr; gap: 56px; } }
 </style>
 
-<script define:vars={{ sending: t.contact.sending, sendLabel: t.contact.send, ok: t.contact.ok, errMsg: t.contact.err }}>
+<script define:vars={{ sending: t.contact.sending, sendLabel: t.contact.send, ok: t.contact.ok, errMsg: t.contact.err, formUrl }}>
   document.getElementById('cf')?.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const inputs = this.querySelectorAll('.fi');
+    const form = this;
+    
+    const btn = document.getElementById('sb');
+    const msg = document.getElementById('fms');
+    const txt = document.getElementById('stxt');
+
+    // Protección anti-spam básica en el cliente (evita que una persona le dé al botón muchas veces)
+    const lastSent = localStorage.getItem('last_msg_sent');
+    if (lastSent && (Date.now() - parseInt(lastSent)) < 3600000) {
+      msg.textContent = 'Ya has enviado un mensaje hace poco. Por favor, espera un rato.';
+      msg.className = 'fmsg err';
+      return;
+    }
+
+    const inputs = form.querySelectorAll('.fi');
     let valid = true;
-    inputs.forEach((inp: any) => { inp.classList.remove('err'); if (!inp.value.trim()) { inp.classList.add('err'); valid = false; } });
+    inputs.forEach((inp) => { inp.classList.remove('err'); if (!inp.value.trim()) { inp.classList.add('err'); valid = false; } });
+    
+    // Check emails validity roughly
+    const emailInp = document.getElementById('fe');
+    if (emailInp && !emailInp.value.includes('@')) { emailInp.classList.add('err'); valid = false; }
+
     if (!valid) return;
 
-    const btn = document.getElementById('sb') as HTMLButtonElement;
-    const msg = document.getElementById('fms') as HTMLElement;
-    const txt = document.getElementById('stxt') as HTMLElement;
     btn.disabled = true; btn.classList.add('loading');
     txt.textContent = sending; msg.textContent = ''; msg.className = 'fmsg';
 
-    await new Promise(r => setTimeout(r, 1600));
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(formUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
 
-    btn.disabled = false; btn.classList.remove('loading');
-    txt.textContent = sendLabel;
-    msg.textContent = ok; msg.className = 'fmsg ok';
-    (this as HTMLFormElement).reset();
-    setTimeout(() => { msg.textContent = ''; }, 5000);
+      if (response.ok) {
+        localStorage.setItem('last_msg_sent', Date.now().toString());
+        btn.disabled = false; btn.classList.remove('loading');
+        txt.textContent = sendLabel;
+        msg.textContent = ok; msg.className = 'fmsg ok';
+        form.reset();
+        setTimeout(() => { msg.textContent = ''; }, 8000);
+      } else {
+        throw new Error('Network response was not ok');
+      }
+    } catch (error) {
+      btn.disabled = false; btn.classList.remove('loading');
+      txt.textContent = sendLabel;
+      msg.textContent = errMsg; msg.className = 'fmsg err';
+      setTimeout(() => { msg.textContent = ''; }, 5000);
+    }
   });
 </script>

@@ -1,0 +1,141 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { projects } from '../data/projects';
+const lang = 'es';
+---
+
+<Layout title="Todos los proyectos - Gabriel">
+  <section class="sec" style="padding-top: 140px; min-height: 100vh;">
+    <div class="w">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+        <h1 style="font-family: var(--D); font-size: 2.5rem; letter-spacing: 0.04em; color: var(--white);">TODOS LOS PROYECTOS</h1>
+        <a href="/" class="bck-btn">Volver al inicio</a>
+      </div>
+      
+      <div class="ggrid">
+        {projects.map((p, i) => {
+          const d = p.es;
+          return (
+            <div class="gitem" data-i={i} tabindex="0" role="button">
+              <div class="gthumb">
+                <img src={p.img} alt={d.title} loading="lazy" />
+              </div>
+              <div class="ginfo">
+                <div class="gname">{d.title}</div>
+                <div class="gtech">
+                  {p.tech.map(x => <span>{x}</span>)}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- DETAIL MODAL -->
+  <div class="dov" id="dov" role="dialog" aria-modal="true">
+    <div class="dcard">
+      <div class="dimg">
+        <span class="dnum" id="d-num"></span>
+        <img id="d-img" src="" alt="" />
+        <div class="dimgo"></div>
+        <button class="dcls" id="cdov" aria-label="Cerrar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="dbody">
+        <h3 class="dtitle" id="d-title"></h3>
+        <p class="ddesc" id="d-desc"></p>
+        <div class="dtech" id="d-tech"></div>
+        <div class="dactions">
+          <a href="#" id="d-demo" target="_blank" rel="noopener" class="btn bP">Demo</a>
+          <a href="#" id="d-git" target="_blank" rel="noopener" class="btn bG">Código</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</Layout>
+
+<style>
+  .bck-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 24px; border: 1px solid var(--g3); color: var(--g5); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.2s; border-radius: 1px; }
+  .bck-btn:hover { background: var(--g1); color: var(--white); border-color: var(--g5); }
+  
+  .ggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .gitem { background: var(--g1); border: 1px solid var(--g2); border-radius: 2px; overflow: hidden; transition: border-color 0.25s, transform 0.25s; }
+  .gitem:hover { border-color: var(--g5); transform: translateY(-3px); }
+  .gthumb { aspect-ratio: 16/9; overflow: hidden; }
+  .gthumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s; }
+  .gitem:hover .gthumb img { transform: scale(1.04); }
+  .ginfo { padding: 20px; }
+  .gname { font-family: var(--D); font-size: 1.35rem; letter-spacing: 0.03em; color: var(--white); margin-bottom: 12px; }
+  .gtech { display: flex; flex-wrap: wrap; gap: 6px; }
+  .gtech span { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--g4); border: 1px solid var(--g2); padding: 3px 8px; border-radius: 1px; }
+
+  /* modal css */
+  .dov { position: fixed; inset: 0; z-index: 400; background: rgba(8, 8, 8, 0.97); opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .dov.open { opacity: 1; pointer-events: all; }
+  .dcard { background: var(--g1); border: 1px solid var(--g2); border-radius: 2px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; transform: scale(0.96) translateY(12px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+  .dov.open .dcard { transform: scale(1) translateY(0); }
+  .dimg { aspect-ratio: 21/9; overflow: hidden; position: relative; }
+  .dimg img { width: 100%; height: 100%; object-fit: cover; }
+  .dimgo { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, var(--g1)); }
+  .dcls { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; background: rgba(8, 8, 8, 0.75); border: 1px solid var(--g3); color: var(--white); border-radius: 1px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+  .dcls:hover { background: var(--g2); }
+  .dbody { padding: 32px 36px 36px; }
+  .dnum { position: absolute; top: 14px; left: 16px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g4); z-index: 2; }
+  .dtitle { font-family: var(--D); font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: 0.03em; line-height: 0.95; color: var(--white); margin-bottom: 20px; }
+  .ddesc { font-size: 1rem; line-height: 1.8; color: var(--g5); margin-bottom: 28px; font-weight: 400; }
+  .dtech { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .dtech span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g5); border: 1px solid var(--g3); padding: 5px 12px; border-radius: 1px; }
+  .dactions { display: flex; gap: 10px; }
+  
+  @media (max-width: 960px) {
+    .dbody { padding: 22px 24px 28px; }
+  }
+</style>
+
+<script>
+  import { projects } from '../data/projects';
+  const PROJECTS = projects;
+
+  function openDetail(idx: number) {
+    const p = PROJECTS[idx];
+    if (!p) return;
+    const d = p.es; // For Spanish page
+    (document.getElementById("d-img") as HTMLImageElement).src = p.img;
+    (document.getElementById("d-img") as HTMLImageElement).alt = d.title;
+    (document.getElementById("d-num") as HTMLElement).textContent = p.n;
+    (document.getElementById("d-title") as HTMLElement).textContent = d.title;
+    (document.getElementById("d-desc") as HTMLElement).textContent = d.long;
+    (document.getElementById("d-tech") as HTMLElement).innerHTML = p.tech.map((x) => `<span>${x}</span>`).join("");
+    (document.getElementById("d-demo") as HTMLAnchorElement).href = p.demo;
+    (document.getElementById("d-git") as HTMLAnchorElement).href = p.git;
+    document.getElementById("dov")!.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDetail() {
+    document.getElementById("dov")!.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".gitem").forEach((item) => {
+      item.addEventListener("click", () => {
+        const idx = parseInt((item as HTMLElement).dataset.i || "0");
+        openDetail(idx);
+      });
+    });
+
+    document.getElementById("cdov")!.addEventListener("click", closeDetail);
+    document.getElementById("dov")!.addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeDetail();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeDetail();
+    });
+  });
+</script>

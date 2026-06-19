@@ -1,6 +1,6 @@
 ---
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { projects } from '../data/projects';
+import { getLangFromUrl, useTranslations, getLocalePath } from "../i18n/utils";
+import { projects } from "../data/projects";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const tripled = [...projects, ...projects, ...projects];
@@ -12,56 +12,123 @@ const N = projects.length;
     <p class="slabel r">{t.projects.label}</p>
     <div class="ph r d1">
       <h2 class="stitle">{t.projects.title}</h2>
-      <button class="va-btn" id="vaBtn">
+      <a href={getLocalePath(lang, lang === 'es' ? 'verproyectos' : 'seeprojects')} class="va-btn" id="vaBtn">
         <span>{t.projects.viewAll}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+        >
+      </a>
     </div>
   </div>
 
   <div class="couter r d2">
     <div class="ctrack" id="ct">
-      {tripled.map((p, i) => {
-        const d = lang === 'es' ? p.es : p.en;
-        const realIdx = i % N;
-        return (
-          <article class="pcard" data-i={realIdx} tabindex="0" role="button" aria-label={d.title}>
-            <div class="pimg">
-              <img src={p.img} alt={d.title} loading={i < 2 ? 'eager' : 'lazy'} />
-              <div class="pimgo"></div>
-              <span class="pidx">{p.n}</span>
-            </div>
-            <div class="pbody">
-              <h3 class="ptitle">{d.title}</h3>
-              <p class="pdesc">{d.short}</p>
-              <div class="ptech">
-                {p.tech.map(x => <span class="ttag">{x}</span>)}
+      {
+        tripled.map((p, i) => {
+          const d = lang === "es" ? p.es : p.en;
+          const realIdx = i % N;
+          return (
+            <article
+              class="pcard"
+              data-i={realIdx}
+              tabindex="0"
+              role="button"
+              aria-label={d.title}
+            >
+              <div class="pimg">
+                <img
+                  src={p.img}
+                  alt={d.title}
+                  loading={i < 2 ? "eager" : "lazy"}
+                />
+                <div class="pimgo" />
+                <span class="pidx">{p.n}</span>
               </div>
-              <div class="pbtns">
-                <a href={p.demo} target="_blank" rel="noopener" class="pbtn pbP" data-stop>
-                  {t.projects.demo}
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <a href={p.git} target="_blank" rel="noopener" class="pbtn pbS" data-stop>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                  Git
-                </a>
+              <div class="pbody">
+                <h3 class="ptitle">{d.title}</h3>
+                <p class="pdesc">{d.short}</p>
+                <div class="ptech">
+                  {p.tech.map((x) => (
+                    <span class="ttag">{x}</span>
+                  ))}
+                </div>
+                <div class="pbtns">
+                  <a
+                    href={p.demo}
+                    target="_blank"
+                    rel="noopener"
+                    class="pbtn pbP"
+                    data-stop
+                  >
+                    {t.projects.demo}
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </>
+                    </svg>
+                  </a>
+                  <a
+                    href={p.git}
+                    target="_blank"
+                    rel="noopener"
+                    class="pbtn pbS"
+                    data-stop
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                    </svg>
+                    Git
+                  </a>
+                </div>
               </div>
-            </div>
-          </article>
-        );
-      })}
+            </article>
+          );
+        })
+      }
     </div>
   </div>
 
   <div class="w">
     <div class="ccontrols">
       <button class="cbtn" id="prev" aria-label="Anterior">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg
+        >
       </button>
       <span class="ccnt" id="cnt">1 / {N}</span>
       <button class="cbtn" id="next" aria-label="Siguiente">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+        >
       </button>
     </div>
   </div>
@@ -72,22 +139,43 @@ const N = projects.length;
   <div class="ovh">
     <h2 class="ovtitle">{t.projects.allTitle}</h2>
     <button class="xbtn" id="cgov" aria-label="Cerrar">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg
+      >
     </button>
   </div>
   <div class="ggrid">
-    {projects.map((p, i) => {
-      const d = lang === 'es' ? p.es : p.en;
-      return (
-        <div class="gitem" data-i={i} tabindex="0" role="button" aria-label={d.title}>
-          <div class="gthumb"><img src={p.img} alt={d.title} loading="lazy" /></div>
-          <div class="ginfo">
-            <div class="gname">{d.title}</div>
-            <div class="gtech">{p.tech.map(x => <span>{x}</span>)}</div>
+    {
+      projects.map((p, i) => {
+        const d = lang === "es" ? p.es : p.en;
+        return (
+          <div
+            class="gitem"
+            data-i={i}
+            tabindex="0"
+            role="button"
+            aria-label={d.title}
+          >
+            <div class="gthumb">
+              <img src={p.img} alt={d.title} loading="lazy" />
+            </div>
+            <div class="ginfo">
+              <div class="gname">{d.title}</div>
+              <div class="gtech">
+                {p.tech.map((x) => (
+                  <span>{x}</span>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      );
-    })}
+        );
+      })
+    }
   </div>
 </div>
 
@@ -98,7 +186,14 @@ const N = projects.length;
       <img id="d-img" src="" alt="" />
       <div class="dimgo"></div>
       <button class="dcls" id="cdov" aria-label="Cerrar">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg
+        >
       </button>
     </div>
     <div class="dbody">
@@ -107,19 +202,55 @@ const N = projects.length;
       <p class="ddesc" id="d-desc"></p>
       <div class="dtech" id="d-tech"></div>
       <div class="dactions">
-        <a href="#" id="d-demo" target="_blank" rel="noopener" class="btn bP">{t.projects.demo}</a>
-        <a href="#" id="d-git" target="_blank" rel="noopener" class="btn bG">Git</a>
+        <a href="#" id="d-demo" target="_blank" rel="noopener" class="btn bP"
+          >{t.projects.demo}</a
+        >
+        <a href="#" id="d-git" target="_blank" rel="noopener" class="btn bG"
+          >Git</a
+        >
       </div>
     </div>
   </div>
 </div>
 
 <style>
-  .ph { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; gap: 24px; flex-wrap: wrap; }
-  .va-btn { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--g5); border: 1px solid var(--g3); padding: 10px 22px; border-radius: 1px; background: transparent; transition: color .2s, border-color .2s, background .2s; }
-  .va-btn svg { transition: transform .25s; }
-  .va-btn:hover { color: var(--white); border-color: var(--g5); background: var(--g1); }
-  .va-btn:hover svg { transform: translateX(3px); }
+  .ph {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .va-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--g5);
+    border: 1px solid var(--g3);
+    padding: 10px 22px;
+    border-radius: 1px;
+    background: transparent;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .va-btn svg {
+    transition: transform 0.25s;
+  }
+  .va-btn:hover {
+    color: var(--white);
+    border-color: var(--g5);
+    background: var(--g1);
+  }
+  .va-btn:hover svg {
+    transform: translateX(3px);
+  }
   .couter {
     position: relative;
     width: 100vw;
@@ -129,114 +260,453 @@ const N = projects.length;
     overflow: hidden;
     --fade-w: 120px;
   }
-  .couter::before, .couter::after { content: ''; position: absolute; top: 0; bottom: 0; width: var(--fade-w); z-index: 10; pointer-events: none; }
-  .couter::before { left: 0; background: linear-gradient(to right, var(--black), transparent); }
-  .couter::after { right: 0; background: linear-gradient(to left, var(--black), transparent); }
-  .ctrack { display: flex; gap: 20px; }
-  .pcard { min-width: 520px; max-width: 520px; background: var(--g1); border: 1px solid var(--g2); border-radius: 2px; overflow: hidden; cursor: pointer; transition: border-color .3s, transform .3s; flex-shrink: 0; }
-  .pcard:hover { border-color: var(--g4); transform: translateY(-4px); }
-  .pimg { aspect-ratio: 16/9; overflow: hidden; position: relative; }
-  .pimg img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
-  .pcard:hover .pimg img { transform: scale(1.04); }
-  .pimgo { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 55%, var(--g1)); }
-  .pidx { position: absolute; top: 14px; right: 16px; font-size: .7rem; font-weight: 600; letter-spacing: .12em; color: var(--g5); }
-  .pbody { padding: 24px; }
-  .ptitle { font-family: var(--D); font-size: 1.75rem; letter-spacing: .03em; line-height: 1.1; color: var(--white); margin-bottom: 10px; }
-  .pdesc { font-size: .9rem; line-height: 1.7; color: var(--g5); margin-bottom: 18px; font-weight: 400; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .ptech { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-  .ttag { font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--g4); border: 1px solid var(--g2); padding: 3px 9px; border-radius: 1px; }
-  .pbtns { display: flex; gap: 8px; }
-  .pbtn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; border-radius: 1px; border: 1px solid transparent; transition: background .2s, color .2s, border-color .2s; }
-  .pbP { background: var(--white); color: var(--black); } .pbP:hover { background: var(--g6); }
-  .pbS { border-color: var(--g3); color: var(--g5); } .pbS:hover { border-color: var(--g5); color: var(--white); }
-  .ccontrols { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 36px; }
-  .cbtn { width: 48px; height: 48px; border: 1px solid var(--g3); background: transparent; color: var(--white); border-radius: 1px; display: flex; align-items: center; justify-content: center; transition: background .2s, border-color .2s; cursor: pointer; }
-  .cbtn:hover { background: var(--g2); border-color: var(--g5); }
-  .ccnt { font-size: .8rem; font-weight: 500; letter-spacing: .1em; color: var(--g4); min-width: 52px; text-align: center; }
+  .couter::before,
+  .couter::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--fade-w);
+    z-index: 10;
+    pointer-events: none;
+  }
+  .couter::before {
+    left: 0;
+    background: linear-gradient(to right, var(--black), transparent);
+  }
+  .couter::after {
+    right: 0;
+    background: linear-gradient(to left, var(--black), transparent);
+  }
+  .ctrack {
+    display: flex;
+    gap: 20px;
+  }
+  .pcard {
+    min-width: 520px;
+    max-width: 520px;
+    background: var(--g1);
+    border: 1px solid var(--g2);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      border-color 0.3s,
+      transform 0.3s;
+    flex-shrink: 0;
+  }
+  .pcard:hover {
+    border-color: var(--g4);
+    transform: translateY(-4px);
+  }
+  .pimg {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    position: relative;
+  }
+  .pimg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+  .pcard:hover .pimg img {
+    transform: scale(1.04);
+  }
+  .pimgo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 55%, var(--g1));
+  }
+  .pidx {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--g5);
+  }
+  .pbody {
+    padding: 24px;
+  }
+  .ptitle {
+    font-family: var(--D);
+    font-size: 1.75rem;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .pdesc {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--g5);
+    margin-bottom: 18px;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ptech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .ttag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--g4);
+    border: 1px solid var(--g2);
+    padding: 3px 9px;
+    border-radius: 1px;
+  }
+  .pbtns {
+    display: flex;
+    gap: 8px;
+  }
+  .pbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 1px;
+    border: 1px solid transparent;
+    transition:
+      background 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .pbP {
+    background: var(--white);
+    color: var(--black);
+  }
+  .pbP:hover {
+    background: var(--g6);
+  }
+  .pbS {
+    border-color: var(--g3);
+    color: var(--g5);
+  }
+  .pbS:hover {
+    border-color: var(--g5);
+    color: var(--white);
+  }
+  .ccontrols {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 36px;
+  }
+  .cbtn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--g3);
+    background: transparent;
+    color: var(--white);
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
+    cursor: pointer;
+  }
+  .cbtn:hover {
+    background: var(--g2);
+    border-color: var(--g5);
+  }
+  .ccnt {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--g4);
+    min-width: 52px;
+    text-align: center;
+  }
   /* gallery */
-  .ov { position: fixed; inset: 0; z-index: 300; background: rgba(8,8,8,.96); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .35s; display: flex; flex-direction: column; }
-  .ov.open { opacity: 1; pointer-events: all; }
-  .ovh { display: flex; align-items: center; justify-content: space-between; padding: 24px 40px; border-bottom: 1px solid var(--g2); flex-shrink: 0; }
-  .ovtitle { font-family: var(--D); font-size: 2rem; letter-spacing: .04em; color: var(--white); }
-  .xbtn { width: 40px; height: 40px; background: transparent; border: 1px solid var(--g3); color: var(--white); border-radius: 1px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, border-color .2s; }
-  .xbtn:hover { background: var(--g2); border-color: var(--g5); }
-  .ggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; padding: 32px 40px; overflow-y: auto; flex: 1; }
-  .gitem { background: var(--g1); border: 1px solid var(--g2); border-radius: 2px; overflow: hidden; cursor: pointer; transition: border-color .25s, transform .25s; }
-  .gitem:hover { border-color: var(--g5); transform: translateY(-3px); }
-  .gthumb { aspect-ratio: 16/9; overflow: hidden; }
-  .gthumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
-  .gitem:hover .gthumb img { transform: scale(1.04); }
-  .ginfo { padding: 16px 18px; }
-  .gname { font-family: var(--D); font-size: 1.35rem; letter-spacing: .03em; color: var(--white); margin-bottom: 8px; }
-  .gtech { display: flex; flex-wrap: wrap; gap: 5px; }
-  .gtech span { font-size: .65rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--g4); border: 1px solid var(--g2); padding: 2px 7px; border-radius: 1px; }
+  .ov {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(8, 8, 8, 0.96);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+    display: flex;
+    flex-direction: column;
+  }
+  .ov.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .ovh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--g2);
+    flex-shrink: 0;
+  }
+  .ovtitle {
+    font-family: var(--D);
+    font-size: 2rem;
+    letter-spacing: 0.04em;
+    color: var(--white);
+  }
+  .xbtn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid var(--g3);
+    color: var(--white);
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
+  }
+  .xbtn:hover {
+    background: var(--g2);
+    border-color: var(--g5);
+  }
+  .ggrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+    padding: 32px 40px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .gitem {
+    background: var(--g1);
+    border: 1px solid var(--g2);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      border-color 0.25s,
+      transform 0.25s;
+  }
+  .gitem:hover {
+    border-color: var(--g5);
+    transform: translateY(-3px);
+  }
+  .gthumb {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+  .gthumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s;
+  }
+  .gitem:hover .gthumb img {
+    transform: scale(1.04);
+  }
+  .ginfo {
+    padding: 16px 18px;
+  }
+  .gname {
+    font-family: var(--D);
+    font-size: 1.35rem;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .gtech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .gtech span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--g4);
+    border: 1px solid var(--g2);
+    padding: 2px 7px;
+    border-radius: 1px;
+  }
   /* detail */
-  .dov { position: fixed; inset: 0; z-index: 400; background: rgba(8,8,8,.97); opacity: 0; pointer-events: none; transition: opacity .3s; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .dov.open { opacity: 1; pointer-events: all; }
-  .dcard { background: var(--g1); border: 1px solid var(--g2); border-radius: 2px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; transform: scale(.96) translateY(12px); transition: transform .35s cubic-bezier(.16,1,.3,1); }
-  .dov.open .dcard { transform: scale(1) translateY(0); }
-  .dimg { aspect-ratio: 21/9; overflow: hidden; position: relative; }
-  .dimg img { width: 100%; height: 100%; object-fit: cover; }
-  .dimgo { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, var(--g1)); }
-  .dcls { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; background: rgba(8,8,8,.75); border: 1px solid var(--g3); color: var(--white); border-radius: 1px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s; }
-  .dcls:hover { background: var(--g2); }
-  .dbody { padding: 32px 36px 36px; }
-  .dnum { font-size: .7rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--g4); margin-bottom: 10px; }
-  .dtitle { font-family: var(--D); font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: .03em; line-height: .95; color: var(--white); margin-bottom: 20px; }
-  .ddesc { font-size: 1rem; line-height: 1.8; color: var(--g5); margin-bottom: 28px; font-weight: 400; }
-  .dtech { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
-  .dtech span { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--g5); border: 1px solid var(--g3); padding: 5px 12px; border-radius: 1px; }
-  .dactions { display: flex; gap: 10px; }
+  .dov {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    background: rgba(8, 8, 8, 0.97);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .dov.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .dcard {
+    background: var(--g1);
+    border: 1px solid var(--g2);
+    border-radius: 2px;
+    max-width: 780px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.96) translateY(12px);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dov.open .dcard {
+    transform: scale(1) translateY(0);
+  }
+  .dimg {
+    aspect-ratio: 21/9;
+    overflow: hidden;
+    position: relative;
+  }
+  .dimg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .dimgo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, var(--g1));
+  }
+  .dcls {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    background: rgba(8, 8, 8, 0.75);
+    border: 1px solid var(--g3);
+    color: var(--white);
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .dcls:hover {
+    background: var(--g2);
+  }
+  .dbody {
+    padding: 32px 36px 36px;
+  }
+  .dnum {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--g4);
+    margin-bottom: 10px;
+  }
+  .dtitle {
+    font-family: var(--D);
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    letter-spacing: 0.03em;
+    line-height: 0.95;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+  .ddesc {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--g5);
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+  .dtech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .dtech span {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--g5);
+    border: 1px solid var(--g3);
+    padding: 5px 12px;
+    border-radius: 1px;
+  }
+  .dactions {
+    display: flex;
+    gap: 10px;
+  }
   @media (max-width: 960px) {
-    .ph { flex-direction: column; align-items: flex-start; }
-    .pcard { min-width: min(460px, 80vw); max-width: min(460px, 80vw); }
-    .ggrid { padding: 20px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-    .ovh { padding: 18px 24px; }
-    .dbody { padding: 22px 24px 28px; }
-    .couter { --fade-w: 60px; }
+    .ph {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .pcard {
+      min-width: min(460px, 80vw);
+      max-width: min(460px, 80vw);
+    }
+    .ggrid {
+      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+    .ovh {
+      padding: 18px 24px;
+    }
+    .dbody {
+      padding: 22px 24px 28px;
+    }
+    .couter {
+      --fade-w: 60px;
+    }
   }
   @media (max-width: 640px) {
-    .pcard { min-width: calc(100vw - 40px); max-width: calc(100vw - 40px); }
-    .ggrid { grid-template-columns: 1fr; padding: 14px; }
-    .ovh { padding: 14px 18px; }
+    .pcard {
+      min-width: calc(100vw - 40px);
+      max-width: calc(100vw - 40px);
+    }
+    .ggrid {
+      grid-template-columns: 1fr;
+      padding: 14px;
+    }
+    .ovh {
+      padding: 14px 18px;
+    }
     .couter {
       width: 100%;
       left: auto;
       transform: none;
       --fade-w: 0px;
     }
-    .couter::before, .couter::after { display: none; }
+    .couter::before,
+    .couter::after {
+      display: none;
+    }
   }
 </style>
 
 <script>
-  // All project data embedded directly — no define:vars needed
-  const PROJECTS = [
-    {
-      es: { title: 'BOT DE TRADING POLYMARKET', short: 'Bot para detectar ineficiencias estadisticas en mercados deportivos de prediccion.', long: 'Bot automatizado para detectar ineficiencias estadisticas en mercados de prediccion deportivos. Usa Python, The Odds API y Groq (Llama 3.3-70b) para confirmacion con IA. Valida estrategias en modo paper trading antes de operar con capital real.' },
-      en: { title: 'POLYMARKET TRADING BOT', short: 'Bot to detect statistical inefficiencies in sports prediction markets.', long: 'Automated bot to detect statistical inefficiencies in sports prediction markets. Uses Python, The Odds API and Groq for AI confirmation. Validates strategies in paper trading mode before deploying real capital.' },
-      img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=80',
-      tech: ['Python', 'Groq API', 'The Odds API', 'FastAPI'], demo: '#', git: '#', n: '01'
-    },
-    {
-      es: { title: 'PORTFOLIO PERSONAL', short: 'Portfolio bilingue con Astro, carrusel infinito y diseno monocromatico.', long: 'Portfolio web bilingue desarrollado con Astro. Diseno monocromatico minimalista con soporte ES/EN, carrusel infinito de proyectos y formulario de contacto funcional.' },
-      en: { title: 'PERSONAL PORTFOLIO', short: 'Bilingual portfolio with Astro, infinite carousel and monochromatic design.', long: 'Bilingual web portfolio built with Astro. Minimalist monochromatic design with ES/EN language switching, infinite project carousel and functional contact form.' },
-      img: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=900&q=80',
-      tech: ['Astro', 'TypeScript', 'CSS'], demo: '#', git: '#', n: '02'
-    },
-    {
-      es: { title: 'DASHBOARD DE MERCADOS', short: 'Panel de visualizacion de datos financieros en tiempo real con Chart.js.', long: 'Panel de control para visualizar datos de mercados financieros en tiempo real. Incluye graficos interactivos con Chart.js, alertas configurables y seguimiento de ETPs apalancados como el 3SIL.' },
-      en: { title: 'MARKETS DASHBOARD', short: 'Real-time financial market data dashboard with Chart.js.', long: 'Control panel to visualize real-time financial market data. Includes interactive charts with Chart.js, configurable alerts and tracking of leveraged ETPs such as 3SIL.' },
-      img: 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=900&q=80',
-      tech: ['React', 'Chart.js', 'Node.js', 'WebSocket'], demo: '#', git: '#', n: '03'
-    },
-    {
-      es: { title: 'APLICACION FULL STACK', short: 'App completa con autenticacion JWT, usuarios y panel de administracion.', long: 'Aplicacion web completa con autenticacion JWT, gestion de usuarios y panel de administracion. Backend RESTful con Express y base de datos PostgreSQL. Desplegada en VPS con PM2.' },
-      en: { title: 'FULL STACK APPLICATION', short: 'Complete app with JWT auth, user management and admin panel.', long: 'Complete web application with JWT authentication, user management and admin panel. RESTful backend with Express and PostgreSQL. Deployed on VPS with PM2.' },
-      img: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80',
-      tech: ['React', 'Express', 'PostgreSQL', 'JWT'], demo: '#', git: '#', n: '04'
-    },
-  ];
+  import { projects } from "../data/projects";
+  const PROJECTS = projects;
 
   const N = PROJECTS.length;
   let cur = N;
@@ -244,43 +714,45 @@ const N = projects.length;
 
   // Detect current language from <html lang>
   function getLang() {
-    return document.documentElement.lang === 'en' ? 'en' : 'es';
+    return document.documentElement.lang === "en" ? "en" : "es";
   }
 
   // ── CAROUSEL ──────────────────────────────────────────────
   function cardWidth() {
-    const c = document.querySelector('.pcard') as HTMLElement | null;
+    const c = document.querySelector(".pcard") as HTMLElement | null;
     return c ? c.offsetWidth + 20 : 540;
   }
 
   function setPos(animated: boolean) {
-    const track = document.getElementById('ct') as HTMLElement;
-    const outer = document.querySelector('.couter') as HTMLElement;
+    const track = document.getElementById("ct") as HTMLElement;
+    const outer = document.querySelector(".couter") as HTMLElement;
     if (!track || !outer) return;
     const containerWidth = outer.offsetWidth;
     const cWidth = cardWidth();
-    
+
     let offset = 0;
     // On mobile view (width <= 640px) or if the container is too narrow for two cards, center 1 card.
     // Otherwise, center 2 cards.
     if (window.innerWidth <= 640 || containerWidth < cWidth * 2) {
-      offset = - (cur * cWidth) + (containerWidth - cWidth) / 2 + 10;
+      offset = -(cur * cWidth) + (containerWidth - cWidth) / 2 + 10;
     } else {
-      offset = - ((cur + 1) * cWidth) + containerWidth / 2 + 10;
+      offset = -((cur + 1) * cWidth) + containerWidth / 2 + 10;
     }
-    
-    track.style.transition = animated ? 'transform .52s cubic-bezier(.16,1,.3,1)' : 'none';
+
+    track.style.transition = animated
+      ? "transform .52s cubic-bezier(.16,1,.3,1)"
+      : "none";
     track.style.transform = `translateX(${offset}px)`;
   }
 
   function updateCounter() {
     const real = ((cur % N) + N) % N;
-    const el = document.getElementById('cnt');
+    const el = document.getElementById("cnt");
     if (el) el.textContent = `${real + 1} / ${N}`;
   }
 
   function goNext() {
-    const track = document.getElementById('ct') as HTMLElement;
+    const track = document.getElementById("ct") as HTMLElement;
     if (!track) return;
     if (cur >= N * 2) {
       cur -= N;
@@ -293,7 +765,7 @@ const N = projects.length;
   }
 
   function goPrev() {
-    const track = document.getElementById('ct') as HTMLElement;
+    const track = document.getElementById("ct") as HTMLElement;
     if (!track) return;
     if (cur <= N) {
       cur += N;
@@ -311,111 +783,125 @@ const N = projects.length;
     const lang = getLang();
     const d = p[lang];
 
-    (document.getElementById('d-img') as HTMLImageElement).src = p.img;
-    (document.getElementById('d-img') as HTMLImageElement).alt = d.title;
-    (document.getElementById('d-num') as HTMLElement).textContent = p.n;
-    (document.getElementById('d-title') as HTMLElement).textContent = d.title;
-    (document.getElementById('d-desc') as HTMLElement).textContent = d.long;
-    (document.getElementById('d-tech') as HTMLElement).innerHTML = p.tech.map(x => `<span>${x}</span>`).join('');
-    (document.getElementById('d-demo') as HTMLAnchorElement).href = p.demo;
-    (document.getElementById('d-git') as HTMLAnchorElement).href = p.git;
+    (document.getElementById("d-img") as HTMLImageElement).src = p.img;
+    (document.getElementById("d-img") as HTMLImageElement).alt = d.title;
+    (document.getElementById("d-num") as HTMLElement).textContent = p.n;
+    (document.getElementById("d-title") as HTMLElement).textContent = d.title;
+    (document.getElementById("d-desc") as HTMLElement).textContent = d.long;
+    (document.getElementById("d-tech") as HTMLElement).innerHTML = p.tech
+      .map((x) => `<span>${x}</span>`)
+      .join("");
+    (document.getElementById("d-demo") as HTMLAnchorElement).href = p.demo;
+    (document.getElementById("d-git") as HTMLAnchorElement).href = p.git;
 
-    document.getElementById('dov')!.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    document.getElementById("dov")!.classList.add("open");
+    document.body.style.overflow = "hidden";
   }
 
   function closeDetail() {
-    document.getElementById('dov')!.classList.remove('open');
-    if (!document.getElementById('gov')!.classList.contains('open')) {
-      document.body.style.overflow = '';
+    document.getElementById("dov")!.classList.remove("open");
+    if (!document.getElementById("gov")!.classList.contains("open")) {
+      document.body.style.overflow = "";
     }
   }
 
   // ── GALLERY OVERLAY ───────────────────────────────────────
   function openGallery() {
-    document.getElementById('gov')!.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    document.getElementById("gov")!.classList.add("open");
+    document.body.style.overflow = "hidden";
   }
 
   function closeGallery() {
-    document.getElementById('gov')!.classList.remove('open');
-    if (!document.getElementById('dov')!.classList.contains('open')) {
-      document.body.style.overflow = '';
+    document.getElementById("gov")!.classList.remove("open");
+    if (!document.getElementById("dov")!.classList.contains("open")) {
+      document.body.style.overflow = "";
     }
   }
 
   // ── INIT (runs after DOM is ready) ────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // Initial carousel position (silent)
     setPos(false);
     updateCounter();
 
     // Arrow buttons
-    document.getElementById('prev')!.addEventListener('click', goPrev);
-    document.getElementById('next')!.addEventListener('click', goNext);
+    document.getElementById("prev")!.addEventListener("click", goPrev);
+    document.getElementById("next")!.addEventListener("click", goNext);
 
     // Resize
-    window.addEventListener('resize', () => setPos(false));
+    window.addEventListener("resize", () => setPos(false));
 
     // Touch swipe
     let startX = 0;
-    const outer = document.querySelector('.couter') as HTMLElement;
-    outer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-    outer.addEventListener('touchend', e => {
+    const outer = document.querySelector(".couter") as HTMLElement;
+    outer.addEventListener(
+      "touchstart",
+      (e) => {
+        startX = e.touches[0].clientX;
+      },
+      { passive: true },
+    );
+    outer.addEventListener("touchend", (e) => {
       const diff = startX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 50) diff > 0 ? goNext() : goPrev();
     });
 
     // Keyboard arrows (only when overlays are closed)
-    window.addEventListener('keydown', e => {
-      const govOpen = document.getElementById('gov')!.classList.contains('open');
-      const dovOpen = document.getElementById('dov')!.classList.contains('open');
+    window.addEventListener("keydown", (e) => {
+      const govOpen = document
+        .getElementById("gov")!
+        .classList.contains("open");
+      const dovOpen = document
+        .getElementById("dov")!
+        .classList.contains("open");
       if (govOpen || dovOpen) return;
-      if (e.key === 'ArrowRight') goNext();
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'Escape') {
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "Escape") {
         if (dovOpen) closeDetail();
         else if (govOpen) closeGallery();
       }
     });
 
     // Escape key (separate listener to catch after state updates)
-    window.addEventListener('keydown', e => {
-      if (e.key !== 'Escape') return;
-      if (document.getElementById('dov')!.classList.contains('open')) closeDetail();
-      else if (document.getElementById('gov')!.classList.contains('open')) closeGallery();
+    window.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (document.getElementById("dov")!.classList.contains("open"))
+        closeDetail();
+      else if (document.getElementById("gov")!.classList.contains("open"))
+        closeGallery();
     });
 
     // Carousel cards -> open detail (stop propagation on link buttons)
-    document.querySelectorAll('[data-stop]').forEach(el => {
-      el.addEventListener('click', e => e.stopPropagation());
+    document.querySelectorAll("[data-stop]").forEach((el) => {
+      el.addEventListener("click", (e) => e.stopPropagation());
     });
 
-    document.querySelectorAll('.pcard').forEach(card => {
-      card.addEventListener('click', () => {
-        const idx = parseInt((card as HTMLElement).dataset.i || '0');
+    document.querySelectorAll(".pcard").forEach((card) => {
+      card.addEventListener("click", () => {
+        const idx = parseInt((card as HTMLElement).dataset.i || "0");
         openDetail(idx);
       });
     });
 
     // Gallery items -> open detail
-    document.querySelectorAll('.gitem').forEach(item => {
-      item.addEventListener('click', () => {
-        const idx = parseInt((item as HTMLElement).dataset.i || '0');
+    document.querySelectorAll(".gitem").forEach((item) => {
+      item.addEventListener("click", () => {
+        const idx = parseInt((item as HTMLElement).dataset.i || "0");
         openDetail(idx);
       });
     });
 
     // Gallery open/close
-    document.getElementById('vaBtn')!.addEventListener('click', openGallery);
-    document.getElementById('cgov')!.addEventListener('click', closeGallery);
-    document.getElementById('gov')!.addEventListener('click', e => {
+    // document.getElementById("vaBtn")!.addEventListener("click", openGallery); // Disabled to use link
+    document.getElementById("cgov")?.addEventListener("click", closeGallery);
+    document.getElementById("gov")?.addEventListener("click", (e) => {
       if (e.target === e.currentTarget) closeGallery();
     });
 
     // Detail close
-    document.getElementById('cdov')!.addEventListener('click', closeDetail);
-    document.getElementById('dov')!.addEventListener('click', e => {
+    document.getElementById("cdov")!.addEventListener("click", closeDetail);
+    document.getElementById("dov")!.addEventListener("click", (e) => {
       if (e.target === e.currentTarget) closeDetail();
     });
   });
