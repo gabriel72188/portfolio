@@ -55,17 +55,6 @@ const t = useTranslations(lang);
             ))
           }
         </div>
-        <div class="adivider"></div>
-        <div class="astat-grid">
-          <div class="astat r d2">
-            <div class="snum">+4</div>
-            <div class="slbl2">{t.about.stat1}</div>
-          </div>
-          <div class="astat r d3">
-            <div class="snum">2</div>
-            <div class="slbl2">{t.about.stat2}</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -105,17 +94,27 @@ const t = useTranslations(lang);
     font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 0.08em;
-    color: var(--g5);
-    border: 1px solid var(--g2);
-    padding: 9px 18px;
-    border-radius: 1px;
+    color: rgba(242, 240, 235, 0.82);
+    background: var(--lg-bg);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1px solid var(--lg-border);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
+    padding: 9px 20px;
+    border-radius: 9999px;
     transition:
-      color 0.2s,
-      border-color 0.2s;
+      color 0.25s var(--lg-ease),
+      background 0.25s var(--lg-ease),
+      border-color 0.25s var(--lg-ease),
+      box-shadow 0.25s var(--lg-ease),
+      transform 0.25s var(--lg-ease);
   }
   .alink:hover {
     color: var(--white);
-    border-color: var(--g4);
+    background: var(--lg-bg-hover);
+    border-color: var(--lg-border-hover);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.55);
+    transform: translateY(-2px);
   }
   .sktitle {
     font-size: 0.7rem;
@@ -134,66 +133,42 @@ const t = useTranslations(lang);
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 9px 16px;
-    border: 1px solid var(--g2);
-    border-radius: 1px;
+    padding: 9px 17px;
+    border: 1px solid var(--lg-border);
+    border-radius: 9999px;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--g6);
-    background: var(--g1);
+    color: rgba(242, 240, 235, 0.84);
+    background: var(--lg-bg);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
     transition:
-      border-color 0.2s,
-      color 0.2s,
-      background 0.2s,
-      transform 0.2s;
+      color 0.25s var(--lg-ease),
+      background 0.25s var(--lg-ease),
+      border-color 0.25s var(--lg-ease),
+      box-shadow 0.25s var(--lg-ease),
+      transform 0.25s var(--lg-ease);
     cursor: default;
   }
   .pill:hover {
-    border-color: var(--g4);
     color: var(--white);
-    background: var(--g2);
+    background: var(--lg-bg-hover);
+    border-color: var(--lg-border-hover);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.55);
     transform: translateY(-2px);
   }
   .pdot {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: var(--g4);
+    background: rgba(255, 220, 180, 0.55);
     flex-shrink: 0;
-    transition: background 0.2s;
+    transition: background 0.2s, box-shadow 0.2s;
   }
   .pill:hover .pdot {
     background: var(--white);
-  }
-  .adivider {
-    width: 40px;
-    height: 2px;
-    background: var(--g3);
-    margin: 44px 0 24px;
-  }
-  .astat-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .astat {
-    padding: 18px;
-    border: 1px solid var(--g2);
-    border-radius: 1px;
-  }
-  .snum {
-    font-family: var(--D);
-    font-size: 2.8rem;
-    line-height: 1;
-    letter-spacing: 0.02em;
-    color: var(--white);
-    margin-bottom: 4px;
-  }
-  .slbl2 {
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    color: var(--g4);
+    box-shadow: 0 0 8px rgba(255, 240, 220, 0.65);
   }
   @media (max-width: 960px) {
     .agrid {

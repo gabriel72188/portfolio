@@ -3,7 +3,6 @@ export const es = {
   hero: {
     tag: 'Disponible',
     sub: 'DESARROLLADOR WEB',
-    desc: 'Construyo interfaces limpias, funcionales y con proposito.',
     cta: 'Ver proyectos',
     cta2: 'Contactar',
   },

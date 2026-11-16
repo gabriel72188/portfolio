@@ -1,0 +1,597 @@
+<canvas id="bh-canvas" transition:persist aria-hidden="true"></canvas>
+
+<style>
+  #bh-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    background: #000;
+    display: block;
+  }
+</style>
+
+<script>
+  const TAU = Math.PI * 2;
+  const POOLS = ["1il!;:", "rtfjcvxz=+", "aeoun0{}[]<>", "08B$#&%Q"];
+  const CHARS = " .,:~+*^01|/\\-_#()x" + POOLS.join("");
+  const AT: Record<string, number> = {};
+  for (let i = 0; i < CHARS.length; i++) {
+    AT[CHARS[i]] = i;
+  }
+
+  const FILL = new Int32Array(4 * 12);
+  for (let p = 0; p < 4; p++) {
+    const pool = POOLS[p];
+    for (let k = 0; k < 12; k++) {
+      FILL[p * 12 + k] = AT[pool[k % pool.length]];
+    }
+  }
+
+  //            deep red        red             orange          amber           white hot        star             dust
+  const TAG_COLOR = [
+    [190, 38, 12],
+    [242, 78, 20],
+    [255, 124, 34],
+    [255, 172, 78],
+    [255, 222, 168],
+    [220, 228, 255],
+    [130, 72, 48],
+  ];
+  const DEEP = 0,
+    RED = 1,
+    ORANGE = 2,
+    AMBER = 3,
+    HOT = 4,
+    STAR = 5,
+    DUST = 6;
+
+  const R0 = 0.11;
+  const TILT = (17 * Math.PI) / 180;
+  const COS_TILT = Math.cos(TILT);
+  const SIN_TILT = Math.sin(TILT);
+  const INC = 0.12;
+  const R_IN = 1.55 * R0;
+  const R_OUT = 5.4 * R0;
+  const FLASH = 7.8;
+
+  const CW = 7;
+  const CH = 11;
+  const FONT_PX = 12;
+  const TRAIL = 0.4;
+  const MONO = "Consolas, Menlo, 'DejaVu Sans Mono', 'Courier New', monospace";
+
+  const RING_PULSES: [number, number, number][] = [
+    [Math.log(1.8), 0.0, 0.95],
+    [Math.log(2.4), 2.1, 0.8],
+    [Math.log(3.2), 4.2, 0.65],
+  ];
+
+  function smooth(x: number): number {
+    const c = x < 0.0 ? 0.0 : x > 1.0 ? 1.0 : x;
+    return c * c * (3.0 - 2.0 * c);
+  }
+
+  function modTau(x: number): number {
+    const m = x % TAU;
+    return m < 0 ? m + TAU : m;
+  }
+
+  function spinVal(t: number): number {
+    const s = Math.max(t - FLASH, 0.0);
+    return 0.06 * t + 0.28 * (s - 0.8 * (1.0 - Math.exp(-s / 0.8)));
+  }
+
+  function ripple(a: number, b: number, t: number): number {
+    return (
+      Math.sin(modTau(a + 0.9 * Math.sin(modTau(b + 1.3 * t)))) * 0.5 +
+      Math.sin(modTau(2.3 * a - b + 0.7 * t)) * 0.3 +
+      Math.sin(modTau(4.1 * a + 1.7 * b - 1.1 * t)) * 0.2
+    );
+  }
+
+  function gas(
+    phi: number,
+    rho: number,
+    t: number,
+    w: number,
+    flashPulseK: number,
+  ): [number, number, number] {
+    const phase = phi - Math.pow(rho / R_IN, -1.5) * w;
+    const lr = Math.log(rho / R0);
+    const a = 46.0 * lr + 0.9 * Math.sin(modTau(phase + 3.0 * lr));
+    let streak =
+      0.55 +
+      0.3 * Math.sin(modTau(a)) +
+      0.15 * Math.sin(modTau(2.3 * a + 2.0 * phase)) +
+      0.12 * Math.sin(modTau(3.0 * phase - 7.0 * lr + 0.3 * t));
+
+    if (flashPulseK > 0.0) {
+      let pulses = 0.0;
+      for (let i = 0; i < 3; i++) {
+        const [logRingR, start, speed] = RING_PULSES[i];
+        const d = modTau(phi - start - speed * t + Math.PI) - Math.PI;
+        const comet =
+          d > 0.0
+            ? Math.exp(-((d / 0.18) * (d / 0.18)))
+            : Math.exp(d / 0.9);
+        const dr = (lr - logRingR) / 0.07;
+        pulses += comet * Math.exp(-(dr * dr));
+      }
+      streak += 0.9 * flashPulseK * pulses;
+    }
+
+    return [streak, phase, lr];
+  }
+
+  function tangentLetter(dx: number, dy: number): number {
+    let s = ((Math.atan2(-dy, dx) * 180.0) / Math.PI) % 180.0;
+    if (s < 0) s += 180.0;
+    if (s < 22.5 || s >= 157.5) return AT["-"];
+    if (s < 67.5) return AT["/"];
+    if (s < 112.5) return AT["|"];
+    return AT["\\"];
+  }
+
+  // Deterministic PRNG (Mulberry32) so starfield is stable across frames
+  function createRng(seed: number) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  interface GridData {
+    cols: number;
+    rows: number;
+    aspect: number;
+    X0: Float32Array;
+    Y0: Float32Array;
+    rnd: Float32Array;
+    hsh: Int32Array;
+    charOut: Int32Array;
+    lumOut: Float32Array;
+    tagOut: Int32Array;
+  }
+
+  function buildGrid(cols: number, rows: number, aspect: number): GridData {
+    const n = rows * cols;
+    const X0 = new Float32Array(n);
+    const Y0 = new Float32Array(n);
+    const rnd = new Float32Array(n);
+    const hsh = new Int32Array(n);
+
+    // Larger scale on mobile portrait for crisp ASCII detail (only far disk tips clip slightly)
+    const minSpanX = 0.60;
+    const fitScale = aspect < minSpanX ? minSpanX / aspect : 1.0;
+
+    const rand = createRng(7);
+    let idx = 0;
+    for (let r = 0; r < rows; r++) {
+      const yVal = ((r + 0.5) / rows - 0.5) * fitScale;
+      for (let c = 0; c < cols; c++) {
+        const xVal = ((c + 0.5) / cols - 0.5) * aspect * fitScale;
+        X0[idx] = xVal;
+        Y0[idx] = yVal;
+        rnd[idx] = rand();
+        hsh[idx] = Math.floor(rand() * 12);
+        idx++;
+      }
+    }
+
+    return {
+      cols,
+      rows,
+      aspect,
+      X0,
+      Y0,
+      rnd,
+      hsh,
+      charOut: new Int32Array(n),
+      lumOut: new Float32Array(n),
+      tagOut: new Int32Array(n),
+    };
+  }
+
+  function buildGlyphAtlas(): Uint8Array {
+    const c = document.createElement("canvas");
+    c.width = CW;
+    c.height = CH;
+    const ctx = c.getContext("2d", { willReadFrequently: true })!;
+    const atlas = new Uint8Array(CHARS.length * CW * CH);
+
+    for (let i = 0; i < CHARS.length; i++) {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, CW, CH);
+      ctx.font = `${FONT_PX}px ${MONO}`;
+      ctx.fillStyle = "#fff";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillText(CHARS[i], CW / 2, CH / 2 + 0.5);
+      const data = ctx.getImageData(0, 0, CW, CH).data;
+      const offset = i * CW * CH;
+      for (let p = 0; p < CW * CH; p++) {
+        atlas[offset + p] = data[p * 4];
+      }
+    }
+    return atlas;
+  }
+
+  function computeFrame(t: number, g: GridData) {
+    const { cols, rows, X0, Y0, rnd, hsh, charOut, lumOut, tagOut } = g;
+    const n = rows * cols;
+
+    const cam = smooth(smooth((t - FLASH + 0.3) / 2.6));
+    const zoom = 1.0 + 0.28 * cam;
+    const invZoom = 1.0 / zoom;
+    const yShift = 0.02 * cam;
+    const inc = INC + 0.09 * cam;
+
+    const w = spinVal(t);
+    const df = (t - FLASH) / 0.22;
+    const flash = Math.exp(-(df * df));
+    const flashBoost = 1.0 + 1.4 * flash;
+    const flashPulseK = smooth((t - FLASH) / 1.0);
+
+    const ringK = smooth((t - 0.3) / 2.2);
+    const ringScale = 0.9 + 0.3 * smooth((t - 5.0) / 2.0);
+    const diskOn = smooth((t - 5.0) / 2.8);
+    const auraK = smooth((t - 2.2) / 1.8) * (1.0 - 0.65 * diskOn);
+
+    const span = R0 + diskOn * (R_OUT * 1.1 - R0);
+    const diskTimeFactor =
+      smooth((t - 5.0) / 0.8) * (0.55 + 0.45 * smooth((t - FLASH + 0.3) / 0.4));
+    const haloTimeFactor = smooth((t - 5.0) / 2.2);
+
+    const hasShock = t > FLASH && t - FLASH < 8.0;
+    const shockFront = R0 + (t - FLASH) * 0.55;
+    const shockDecay = hasShock ? Math.exp(-(t - FLASH) / 0.5) * 0.9 : 0.0;
+
+    const dustActive = t > 4.0;
+    const dustLum = dustActive ? 0.3 * smooth((t - 4.0) / 3.0) : 0.0;
+
+    const spaceChar = AT[" "];
+    const plusChar = AT["+"];
+    const starChar = AT["*"];
+    const dotChar = AT["."];
+    const colonChar = AT[":"];
+    const commaChar = AT[","];
+
+    for (let i = 0; i < n; i++) {
+      const X = X0[i] * invZoom;
+      const Y = (Y0[i] + yShift) * invZoom;
+      const r = Math.hypot(X, Y);
+      const ang = Math.atan2(Y, X);
+
+      // 1. Circle draws itself
+      const around = modTau(ang + Math.PI / 2.0) / TAU;
+      const drRing = (r - 1.02 * R0) / (0.045 * R0);
+      const ring =
+        Math.exp(-(drRing * drRing)) * smooth((ringK * 1.08 - around) / 0.08);
+
+      // 2. Soft glow breathing around it
+      let aura = 0.0;
+      if (auraK > 0.001) {
+        const rhoAura = R_IN + Math.max(r - 1.0 * R0, 0.0) * 2.6;
+        const [rings] = gas(ang - TILT, rhoAura, t, w, flashPulseK);
+        let puff = 0.5 + 0.5 * ripple(2.0 * ang, 5.0 * r - 0.45 * t, 0.35 * t);
+        puff = puff * (1.0 - diskOn) + rings * diskOn;
+        const reach = 0.32 * R0 * (0.7 + 0.6 * puff);
+        aura =
+          auraK *
+          Math.exp(-Math.pow(Math.max(r - R0, 0.0) / reach, 1.6)) *
+          (0.6 + 0.4 * puff);
+      }
+
+      // 3. Accretion disk
+      const u = X * COS_TILT + Y * SIN_TILT;
+      const v = -X * SIN_TILT + Y * COS_TILT;
+      const vInc = v / inc;
+      const rhoDisk = Math.hypot(u, vInc);
+      const phiDisk = Math.atan2(vInc, u);
+      const [streak, phase, lr] = gas(phiDisk, rhoDisk, t, w, flashPulseK);
+      const edge =
+        smooth((rhoDisk - R_IN) / (0.25 * R0)) *
+        smooth((R_OUT - rhoDisk) / (2.2 * R0));
+      let disk =
+        1.5 *
+        edge *
+        streak *
+        (R_IN / Math.max(rhoDisk, 1e-6)) *
+        (1.0 - (0.25 * u) / Math.max(rhoDisk, 1e-6));
+      disk *= diskTimeFactor * smooth((span - Math.abs(u)) / (0.6 * R0));
+
+      // 4. Lensed halo
+      let halo = 0.0;
+      if (haloTimeFactor > 0.001) {
+        const angTilt = ang - TILT;
+        const top = 0.5 - 0.5 * Math.sin(angTilt);
+        const cosAng = Math.cos(angTilt);
+        const side = Math.pow(Math.abs(cosAng), 10);
+        const out = Math.max(r - 1.1 * R0, 0.0);
+        const bandW = 0.2 * R0 + 0.24 * R0 * top + 0.45 * R0 * side;
+        const minIn = Math.min(r - 1.1 * R0, 0.0) / (0.2 * R0);
+        const band =
+          Math.exp(-((out / bandW) * (out / bandW))) *
+          Math.exp(-(minIn * minIn));
+        const rhoHalo =
+          (1.0 - side) * (R_IN + Math.max(r - 1.0 * R0, 0.0) * 2.6) +
+          side * Math.max(r, R_IN);
+        const [flow] = gas(angTilt, rhoHalo, t, w, flashPulseK);
+        halo =
+          1.2 *
+          band *
+          flow *
+          (0.5 + 0.8 * top) *
+          (1.0 - 0.25 * cosAng) *
+          haloTimeFactor;
+      }
+
+      let shock = 0.0;
+      if (hasShock) {
+        const ds = (r - shockFront) / 0.02;
+        shock = Math.exp(-(ds * ds)) * shockDecay;
+      }
+
+      const cAura = Math.min(Math.max(aura * 0.55, 0.0), 1.0);
+      const cHalo = Math.min(Math.max(halo, 0.0), 1.0);
+      const cDisk = Math.min(Math.max(disk, 0.0), 1.0);
+      let soft = 1.0 - (1.0 - cAura) * (1.0 - cHalo) * (1.0 - cDisk);
+      soft = Math.max(soft, disk, halo);
+
+      let heat = Math.max(ring * ringScale, soft, shock) * flashBoost;
+
+      const inside = r < R0 * 0.97;
+      const frontSide = v > 0.0;
+      if (inside) {
+        if (!frontSide) {
+          heat = 0.0;
+        } else {
+          heat = disk > 0.2 ? disk * flashBoost : 0.0;
+        }
+      }
+
+      const on = heat > 0.07;
+      let ch = spaceChar;
+      let tg = HOT;
+      let lm = 0.0;
+
+      if (on) {
+        let level = Math.trunc(heat * 3.6);
+        if (level < 0) level = 0;
+        else if (level > 3) level = 3;
+
+        let colIdx = (hsh[i] + Math.trunc(phase * 2.0 + lr * 6.0)) % 12;
+        if (colIdx < 0) colIdx += 12;
+        ch = FILL[level * 12 + colIdx];
+
+        if (ring > aura * 0.8 && ring > disk && ring > halo && ring > 0.25) {
+          ch = tangentLetter(-Math.sin(ang), Math.cos(ang));
+        }
+
+        if (heat < 0.1) tg = DEEP;
+        else if (heat < 0.2) tg = RED;
+        else if (heat < 0.45) tg = ORANGE;
+        else if (heat < 0.75) tg = AMBER;
+        else tg = HOT;
+
+        const baseLum = Math.min(Math.max(0.42 + 0.85 * heat, 0.0), 1.3);
+        lm = baseLum * (0.35 + 0.65 * smooth((heat - 0.07) / 0.15));
+      } else if (!inside) {
+        const rv = rnd[i];
+        if (rv < 0.0025) {
+          ch = rv < 0.0005 ? plusChar : rv < 0.0012 ? starChar : dotChar;
+          tg = STAR;
+          lm = 0.75 + 0.2 * Math.sin(modTau(0.8 * t + rv * 9000.0));
+        } else if (dustActive) {
+          const dl = (v - 0.02) / 0.09;
+          const lane = Math.exp(-(dl * dl));
+          if (rv > 1.0 - 0.035 * lane) {
+            ch = rv > 1.0 - 0.01 * lane ? colonChar : commaChar;
+            tg = DUST;
+            lm = dustLum;
+          }
+        }
+      }
+
+      charOut[i] = ch;
+      tagOut[i] = tg;
+      lumOut[i] = lm;
+    }
+  }
+
+  function initBlackHole() {
+    const mainCanvas = document.getElementById(
+      "bh-canvas",
+    ) as HTMLCanvasElement | null;
+    if (!mainCanvas || mainCanvas.dataset.initialized === "true") return;
+    mainCanvas.dataset.initialized = "true";
+
+    const mainCtx = mainCanvas.getContext("2d", { alpha: false })!;
+    const atlas = buildGlyphAtlas();
+
+    const shapeCanvas = document.createElement("canvas");
+    const shapeCtx = shapeCanvas.getContext("2d")!;
+
+    const trailCanvas = document.createElement("canvas");
+    const trailCtx = trailCanvas.getContext("2d", { alpha: false })!;
+
+    const glow1Canvas = document.createElement("canvas");
+    const glow1Ctx = glow1Canvas.getContext("2d")!;
+
+    const glow2Canvas = document.createElement("canvas");
+    const glow2Ctx = glow2Canvas.getContext("2d")!;
+
+    let gridData: GridData;
+    let shapeImgData: ImageData;
+    let shapeBuf32: Uint32Array;
+    let W = 0;
+    let H = 0;
+
+    function setupSize() {
+      const vw = Math.max(window.innerWidth, 320);
+      const vh = Math.max(window.innerHeight, 320);
+      const winAspect = vw / vh;
+
+      // Match original Python script resolution scale (H ~ 960, CW=7, CH=11)
+      const targetH = Math.min(960, Math.max(660, vh));
+      const rows = Math.max(48, Math.floor(targetH / CH));
+      const cols = Math.max(54, Math.floor((rows * CH * winAspect) / CW));
+
+      W = cols * CW;
+      H = rows * CH;
+      const aspect = W / H;
+
+      mainCanvas!.width = W;
+      mainCanvas!.height = H;
+
+      shapeCanvas.width = W;
+      shapeCanvas.height = H;
+      shapeImgData = shapeCtx.createImageData(W, H);
+      shapeBuf32 = new Uint32Array(shapeImgData.data.buffer);
+
+      trailCanvas.width = W;
+      trailCanvas.height = H;
+      trailCtx.fillStyle = "#000";
+      trailCtx.fillRect(0, 0, W, H);
+
+      glow1Canvas.width = Math.max(1, Math.floor(W / 4));
+      glow1Canvas.height = Math.max(1, Math.floor(H / 4));
+
+      glow2Canvas.width = Math.max(1, Math.floor(W / 8));
+      glow2Canvas.height = Math.max(1, Math.floor(H / 8));
+
+      gridData = buildGrid(cols, rows, aspect);
+    }
+
+    setupSize();
+
+    let resizeTimer: number | undefined;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setupSize, 150);
+    });
+
+    const fadeByte = Math.floor(TRAIL * 255);
+    const fadeColor = `rgb(${fadeByte},${fadeByte},${fadeByte})`;
+    const spaceChar = AT[" "];
+
+    let t = 0.0;
+    let lastTime = performance.now();
+    let acc = 0.0;
+    const STEP_MS = 1000 / 30;
+
+    function renderStep(dtSec: number) {
+      // Continuous time progression without loop reset
+      t += Math.min(dtSec, 1 / 15);
+
+      computeFrame(t, gridData);
+
+      const { cols, rows, charOut, lumOut, tagOut } = gridData;
+      shapeBuf32.fill(0xff000000);
+
+      let cellIdx = 0;
+      for (let r = 0; r < rows; r++) {
+        const baseY = r * CH;
+        for (let c = 0; c < cols; c++) {
+          const ch = charOut[cellIdx];
+          if (ch !== spaceChar) {
+            const lm = lumOut[cellIdx];
+            const rgb = TAG_COLOR[tagOut[cellIdx]];
+            const cr = Math.min(255, Math.max(0, Math.trunc(rgb[0] * lm)));
+            const cg = Math.min(255, Math.max(0, Math.trunc(rgb[1] * lm)));
+            const cb = Math.min(255, Math.max(0, Math.trunc(rgb[2] * lm)));
+
+            const glyphOffset = ch * CW * CH;
+            const baseX = c * CW;
+
+            for (let gy = 0; gy < CH; gy++) {
+              const rowOffset = (baseY + gy) * W + baseX;
+              const gRow = glyphOffset + gy * CW;
+              for (let gx = 0; gx < CW; gx++) {
+                const a = atlas[gRow + gx];
+                if (a > 0) {
+                  const pr = (cr * a) >> 8;
+                  const pg = (cg * a) >> 8;
+                  const pb = (cb * a) >> 8;
+                  shapeBuf32[rowOffset + gx] =
+                    0xff000000 | (pb << 16) | (pg << 8) | pr;
+                }
+              }
+            }
+          }
+          cellIdx++;
+        }
+      }
+
+      shapeCtx.putImageData(shapeImgData, 0, 0);
+
+      // Trail fade (BLEND_MULT) + current frame (BLEND_MAX)
+      trailCtx.globalCompositeOperation = "multiply";
+      trailCtx.fillStyle = fadeColor;
+      trailCtx.fillRect(0, 0, W, H);
+
+      trailCtx.globalCompositeOperation = "lighten";
+      trailCtx.drawImage(shapeCanvas, 0, 0);
+
+      // Base image
+      mainCtx.globalCompositeOperation = "source-over";
+      mainCtx.globalAlpha = 1.0;
+      mainCtx.drawImage(trailCanvas, 0, 0);
+
+      // Glow Layer 1: blur(art, 4, 5) * 0.75 (BLEND_ADD)
+      glow1Ctx.filter = "blur(1.25px)";
+      glow1Ctx.drawImage(
+        trailCanvas,
+        0,
+        0,
+        glow1Canvas.width,
+        glow1Canvas.height,
+      );
+
+      // Glow Layer 2: blur(art, 8, 22) * 0.45 (BLEND_ADD)
+      glow2Ctx.filter = "blur(2.75px)";
+      glow2Ctx.drawImage(
+        trailCanvas,
+        0,
+        0,
+        glow2Canvas.width,
+        glow2Canvas.height,
+      );
+
+      mainCtx.globalCompositeOperation = "lighter";
+      mainCtx.globalAlpha = 0.75;
+      mainCtx.drawImage(glow1Canvas, 0, 0, W, H);
+      mainCtx.globalAlpha = 0.45;
+      mainCtx.drawImage(glow2Canvas, 0, 0, W, H);
+      mainCtx.globalAlpha = 1.0;
+    }
+
+    // Draw initial frame immediately
+    renderStep(0);
+
+    function loop(now: number) {
+      const elapsed = now - lastTime;
+      lastTime = now;
+      acc += Math.min(elapsed, 100);
+
+      if (acc >= STEP_MS) {
+        const dt = acc / 1000;
+        acc %= STEP_MS;
+        renderStep(dt);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  initBlackHole();
+  document.addEventListener("astro:page-load", initBlackHole);
+</script>

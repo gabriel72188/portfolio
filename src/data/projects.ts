@@ -11,23 +11,6 @@ export interface Project {
 export const projects: Project[] = [
   {
     es: {
-      title: 'INVENTAPP',
-      short: 'Plataforma de gestión de inventario y POS con arquitectura de microservicios y motor de análisis avanzado.',
-      long: 'Plataforma integral de gestión de inventario y punto de venta (POS) diseñada con una arquitectura de microservicios escalable. El sistema gestiona almacenes, proveedores, logística y roles de seguridad, destacando por su motor de análisis avanzado que procesa listas de materiales (BOM). En lugar de solo contar existencias, calcula la capacidad real de producción final basándose en las materias primas disponibles, previniendo roturas de stock y optimizando las decisiones de compra mediante el cruce de datos y métricas de rendimiento.',
-    },
-    en: {
-      title: 'INVENTAPP',
-      short: 'Inventory management and POS platform with microservices architecture and advanced analytics engine.',
-      long: 'Comprehensive inventory management and point-of-sale (POS) platform designed with a scalable microservices architecture. The system manages warehouses, suppliers, logistics, and security roles, featuring an advanced analytics engine that processes bills of materials (BOM). Instead of just counting stock, it calculates the real final production capacity based on available raw materials, preventing stockouts and optimizing purchasing decisions through data crossing and performance metrics.',
-    },
-    img: '/inventapp2.png',
-    tech: ['TypeScript', 'Nuxt.js', 'NestJS', 'Microservicios', 'NATS', 'Prisma ORM', 'Docker', 'Kubernetes'],
-    demo: 'https://inventapp.store',
-    git: 'https://github.com/JorgeAsca/Ivent_app.git',
-    n: '01',
-  },
-  {
-    es: {
       title: 'NOMADS GARDEN',
       short: 'Plataforma web ultrarrápida con arquitectura Headless CMS (WordPress) y enfoque estricto en SEO y WPO.',
       long: 'Plataforma web moderna y ultrarrápida, implementa una arquitectura de Headless CMS utilizando WordPress en el backend para una gestión de contenidos dinámica y totalmente desacoplada. Desarrollada para presentar un catálogo de servicios, gastronomía y experiencias de ocio. El frontend está diseñado con un enfoque estricto en rendimiento (WPO) y SEO, destacando por su estructura modular y soporte multilingüe nativo para captar de forma eficiente a un público internacional.',
@@ -41,7 +24,7 @@ export const projects: Project[] = [
     tech: ['Astro', 'WordPress (Headless)', 'Tailwind CSS', 'TypeScript', 'i18n', 'Docker'],
     demo: 'https://www.nomadsgarden.com/',
     git: 'https://github.com/gabriel72188/Nomas-garden.git',
-    n: '02',
+    n: '01',
   },
   {
     es: {
@@ -58,7 +41,7 @@ export const projects: Project[] = [
     tech: ['React', 'Vite', 'Tailwind CSS', 'PostCSS', 'ESLint', 'JavaScript'],
     demo: 'https://movies.gabrielmq.com/',
     git: 'https://github.com/gabriel72188/peliculas.git',
-    n: '03',
+    n: '02',
   },
   {
     es: {
@@ -75,6 +58,23 @@ export const projects: Project[] = [
     tech: ['Astro', 'Tailwind CSS', 'Git CMS', 'PHP', 'GitHub Actions', 'i18n'],
     demo: 'https://www.pickleballaguilas.club/es/',
     git: 'https://github.com/gabriel72188/pickleball-aguilas.git',
+    n: '03',
+  },
+  {
+    es: {
+      title: 'INVENTAPP',
+      short: 'Plataforma de gestión de inventario y POS con arquitectura de microservicios y motor de análisis avanzado.',
+      long: 'Plataforma integral de gestión de inventario y punto de venta (POS) diseñada con una arquitectura de microservicios escalable. El sistema gestiona almacenes, proveedores, logística y roles de seguridad, destacando por su motor de análisis avanzado que procesa listas de materiales (BOM). En lugar de solo contar existencias, calcula la capacidad real de producción final basándose en las materias primas disponibles, previniendo roturas de stock y optimizando las decisiones de compra mediante el cruce de datos y métricas de rendimiento.',
+    },
+    en: {
+      title: 'INVENTAPP',
+      short: 'Inventory management and POS platform with microservices architecture and advanced analytics engine.',
+      long: 'Comprehensive inventory management and point-of-sale (POS) platform designed with a scalable microservices architecture. The system manages warehouses, suppliers, logistics, and security roles, featuring an advanced analytics engine that processes bills of materials (BOM). Instead of just counting stock, it calculates the real final production capacity based on available raw materials, preventing stockouts and optimizing purchasing decisions through data crossing and performance metrics.',
+    },
+    img: '/inventapp2.png',
+    tech: ['TypeScript', 'Nuxt.js', 'NestJS', 'Microservicios', 'NATS', 'Prisma ORM', 'Docker', 'Kubernetes'],
+    demo: 'https://inventapp.store',
+    git: 'https://github.com/JorgeAsca/Ivent_app.git',
     n: '04',
   },
 ];

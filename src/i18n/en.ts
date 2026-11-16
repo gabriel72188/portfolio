@@ -3,7 +3,6 @@ export const en = {
   hero: {
     tag: 'Available',
     sub: 'WEB DEVELOPER',
-    desc: 'I build clean, functional interfaces with purpose.',
     cta: 'View projects',
     cta2: 'Contact me',
   },

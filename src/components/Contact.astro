@@ -78,24 +78,70 @@ const formUrl = import.meta.env.PUBLIC_FORMSPREE_URL;
   .avail { display: inline-flex; align-items: center; gap: 8px; }
   .avdot { width: 6px; height: 6px; border-radius: 50%; background: var(--white); animation: bl 2.5s ease-in-out infinite; }
   @keyframes bl { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+  #cf {
+    background: var(--lg-bg);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
+    border: 1px solid var(--lg-border);
+    box-shadow: var(--lg-shadow);
+    border-radius: 26px;
+    padding: 32px;
+  }
   .fg { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
   .fl { font-size: .68rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--g4); }
-  .fi { background: var(--g1); border: 1px solid var(--g2); color: var(--white); padding: 13px 15px; font-family: var(--B); font-size: .9375rem; font-weight: 400; border-radius: 1px; outline: none; width: 100%; transition: border-color .2s, background .2s; }
+  .fi {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    color: var(--white);
+    padding: 13px 16px;
+    font-family: var(--B);
+    font-size: .9375rem;
+    font-weight: 400;
+    border-radius: 14px;
+    outline: none;
+    width: 100%;
+    transition: border-color .25s var(--lg-ease), background .25s var(--lg-ease), box-shadow .25s var(--lg-ease);
+  }
   .fi::placeholder { color: var(--g4); }
-  .fi:focus { border-color: var(--g4); background: var(--g2); }
+  .fi:focus {
+    border-color: rgba(255, 240, 220, 0.42);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22), 0 0 0 3px rgba(255, 240, 220, 0.06);
+  }
   .fi.err { border-color: #c44; }
   textarea.fi { resize: vertical; min-height: 130px; }
   .ffoot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
   .fmsg { font-size: .75rem; font-weight: 500; color: var(--g4); flex: 1; }
   .fmsg.ok { color: var(--g6); }
   .fmsg.err { color: #c44; }
-  .sbtn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 30px; font-size: .8125rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; background: var(--white); color: var(--black); border: 1px solid transparent; border-radius: 1px; transition: background .2s, transform .18s; }
-  .sbtn:hover { background: var(--g6); transform: translateY(-2px); }
+  .sbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 30px;
+    font-size: .8125rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: rgba(242, 240, 235, 0.92);
+    color: var(--black);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 9999px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 10px 28px -6px rgba(255, 235, 205, 0.28);
+    transition: background .25s var(--lg-ease), box-shadow .25s var(--lg-ease), transform .25s var(--lg-ease);
+  }
+  .sbtn:hover {
+    background: #ffffff;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 1), 0 14px 32px -4px rgba(255, 235, 205, 0.38);
+    transform: translateY(-2px);
+  }
   .sbtn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
   .spin { display: none; width: 13px; height: 13px; border: 1.5px solid var(--black); border-top-color: transparent; border-radius: 50%; animation: rot .7s linear infinite; }
   .sbtn.loading .spin { display: block; }
   @keyframes rot { to { transform: rotate(360deg); } }
   @media (max-width: 960px) { .cgrid { grid-template-columns: 1fr; gap: 56px; } }
+  @media (max-width: 640px) { #cf { padding: 22px; border-radius: 22px; } }
 </style>
 
 <script define:vars={{ sending: t.contact.sending, sendLabel: t.contact.send, ok: t.contact.ok, errMsg: t.contact.err, formUrl }}>
